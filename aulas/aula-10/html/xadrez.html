@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A Armadilha do Guloso - Xadrez</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background-color: #1e1e2e;
+        color: #cdd6f4;
+        margin: 0;
+        padding: 20px;
+      }
+
+      h1 {
+        margin-bottom: 5px;
+        color: #89b4fa;
+      }
+      h3 {
+        margin-top: 0;
+        color: #a6adc8;
+        font-weight: normal;
+      }
+
+      .container {
+        display: flex;
+        gap: 40px;
+        align-items: flex-start;
+        margin-top: 20px;
+      }
+
+      .board {
+        display: grid;
+        grid-template-columns: repeat(8, 60px);
+        grid-template-rows: repeat(8, 60px);
+        border: 8px solid #313244;
+        border-radius: 4px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      }
+
+      .square {
+        width: 60px;
+        height: 60px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 45px;
+        position: relative;
+        cursor: default;
+      }
+
+      .light {
+        background-color: #f0d9b5;
+        color: #000;
+      }
+      .dark {
+        background-color: #b58863;
+        color: #000;
+      }
+
+      /* Marcações Didáticas */
+      .highlight-greedy {
+        background-color: rgba(166, 227, 161, 0.8) !important;
+        box-shadow: inset 0 0 10px #a6e3a1;
+      }
+      .highlight-fatal {
+        background-color: rgba(243, 139, 168, 0.8) !important;
+        box-shadow: inset 0 0 10px #f38ba8;
+      }
+
+      .panel {
+        background-color: #313244;
+        padding: 20px 30px;
+        border-radius: 8px;
+        max-width: 350px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      }
+
+      .legend {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+      .legend-box {
+        width: 20px;
+        height: 20px;
+        margin-right: 10px;
+        border-radius: 4px;
+        flex-shrink: 0;
+      }
+      .box-green {
+        background-color: #a6e3a1;
+      }
+      .box-red {
+        background-color: #f38ba8;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Ótimo Local vs Ótimo Global</h1>
+    <h3>A Armadilha do Algoritmo Guloso no Xadrez</h3>
+
+    <div class="container">
+      <div class="board" id="chessboard"></div>
+
+      <div class="panel">
+        <h2>A Situação</h2>
+        <p>
+          É a vez das Brancas. A Rainha branca (♕) está protegendo o Rei,
+          bloqueando a diagonal do Bispo preto (♝) e marcando a Rainha preta
+          (♛).
+        </p>
+
+        <div class="legend">
+          <div class="legend-box box-green"></div>
+          <div>
+            <strong>A Decisão Gulosa (Ótimo Local)</strong><br />
+            A Rainha branca vê uma Torre preta (♜) totalmente desprotegida lá no
+            fundo. Capturá-la é a jogada de maior ganho imediato.
+          </div>
+        </div>
+
+        <div class="legend">
+          <div class="legend-box box-red"></div>
+          <div>
+            <strong>A Consequência (Desastre Global)</strong><br />
+            Ao abandonar a defesa para pegar a Torre, a diagonal se abre. A
+            Rainha preta desce e dá um <b>Xeque-Mate</b> instantâneo no Rei
+            branco (♔).
+          </div>
+        </div>
+
+        <p>
+          <i>Moral da história:</i> A ganância por uma peça solta cegou o
+          algoritmo para o objetivo principal: não perder o jogo.
+        </p>
+      </div>
+    </div>
+
+    <script>
+      const board = document.getElementById("chessboard");
+
+      const pieces = {
+        r: "♜",
+        k: "♚",
+        q: "♛",
+        p: "♟",
+        b: "♝",
+        R: "♖",
+        N: "♘",
+        P: "♙",
+        K: "♔",
+        Q: "♕",
+      };
+
+      // Novo layout muito mais claro e sem furos lógicos
+      const layout = [
+        ["", "", "", "", "", "r", "k", ""], // Linha 8: Torre preta (isca) em f8
+        ["", "b", "", "", "", "", "p", "p"], // Linha 7: Bispo preto em b7 apontando para g2
+        ["", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "Q", "", "q"], // Linha 3: Rainha Branca em f3, Rainha Preta em h3
+        ["", "", "", "", "", "P", "P", "P"], // Linha 2: Peões brancos
+        ["", "", "", "", "", "", "K", ""], // Linha 1: Rei branco em g1
+      ];
+
+      for (let row = 0; row < 8; row++) {
+        for (let col = 0; col < 8; col++) {
+          const square = document.createElement("div");
+          const isLight = (row + col) % 2 === 0;
+
+          square.classList.add("square");
+          square.classList.add(isLight ? "light" : "dark");
+
+          let pieceKey = layout[row][col];
+
+          if (pieces[pieceKey]) {
+            square.innerText = pieces[pieceKey];
+          }
+
+          // Destaque Verde (Decisão Gulosa): Rainha Branca (5,5) vai pegar a Torre Preta (0,5)
+          if ((row === 5 && col === 5) || (row === 0 && col === 5)) {
+            square.classList.add("highlight-greedy");
+          }
+
+          // Destaque Vermelho (Consequência): Rainha Preta (5,7) desce para dar mate no peão de g2 (6,6)
+          if ((row === 5 && col === 7) || (row === 6 && col === 6)) {
+            square.classList.add("highlight-fatal");
+          }
+
+          board.appendChild(square);
+        }
+      }
+    </script>
+  </body>
+</html>
