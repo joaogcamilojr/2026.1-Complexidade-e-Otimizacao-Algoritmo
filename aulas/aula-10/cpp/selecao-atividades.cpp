@@ -11,8 +11,7 @@ struct Atividade {
 };
 
 bool compararPorFim(Atividade a, Atividade b) {
-    // TODO
-    return ;
+    return a.fim < b.fim;
 }
 
 int main() {
@@ -30,8 +29,7 @@ int main() {
         {"A11", 12, 16}
     };
 
-    // TODO
-    sort(______________);
+    sort(atividades.begin(), atividades.end(), compararPorFim);
 
     vector<Atividade> selecionadas;
 
@@ -39,32 +37,26 @@ int main() {
 
     for (int i = 0; i < atividades.size(); i++) {
 
-        // TODO
-        if (______________) {
-
-            // TODO
-            ______________;
-
-            // TODO
-            ultimoFim = ______________;
+        if (atividades[i].inicio >= ultimoFim) {
+            selecionadas.push_back(atividades[i]);
+            ultimoFim = atividades[i].fim;
         }
     }
 
     cout << "Atividades selecionadas:" << endl;
 
-    // TODO
     for (int i = 0; i < selecionadas.size(); i++) {
         cout << selecionadas[i].nome
-             << " | Inicio: " << ______________
-             << " | Fim: " << ______________
+             << " | Inicio: " << selecionadas[i].inicio
+             << " | Fim: " << selecionadas[i].fim
              << endl;
     }
 
     cout << endl;
     cout << "Complexidade do algoritmo:" << endl;
-    cout << "Ordenacao: ______________" << endl;
-    cout << "Selecao: ______________" << endl;
-    cout << "Total: ______________" << endl;
+    cout << "Ordenacao: O(n log n)" << endl;
+    cout << "Selecao: O(n)" << endl;
+    cout << "Total: O(n log n)" << endl;
 
     return 0;
 }
